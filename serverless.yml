@@ -1,0 +1,41 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: qiita-reservation-post
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: production
+  region: ap-northeast-1
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - .serverless/**
+    - .vscode/**
+    - node_modules/**
+    - venv/**
+
+functions:
+  main:
+    handler: src/handler.main
+    events:
+      - schedule: cron(0 * * * ? *)
+      # https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
+    environment:
+      TZ: Asia/Tokyo
+      QIITA_ACCESS_TOKEN: [YOUR QIITA_ACCESS_TOKEN]
+      RESERVATION_KEYWORD: "予約投稿:%Y/%m/%d %H:00"

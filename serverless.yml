@@ -37,5 +37,6 @@ functions:
       # https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
     environment:
       TZ: Asia/Tokyo
-      QIITA_ACCESS_TOKEN: [YOUR QIITA_ACCESS_TOKEN]
+      QIITA_ACCESS_TOKEN: [YOUR_QIITA_ACCESS_TOKEN]
       RESERVATION_KEYWORD: "予約投稿:%Y/%m/%d %H:00"
+      # SLACK_WEB_HOOK_URL: [YOUR_SLACK_WEB_HOOK_URL]

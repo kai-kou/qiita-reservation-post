@@ -4,15 +4,21 @@ from datetime import datetime as dt
 
 import os
 
+import slackweb
+
 
 class ReservationPostQiitaClient(object):
 
-  def __init__(self, access_token):
+  def __init__(self, access_token, slack_web_hook_url=None):
     self.access_token = access_token
     self.resrvation_items = []
     self.client = QiitaClient(access_token=access_token)
     self._get_all_items()
     print(f'all_items: {len(self.items)}')
+
+    self.slack = None
+    if slack_web_hook_url is not None:
+      self.slack = slackweb.Slack(url=slack_web_hook_url)
 
 
   def _get_all_items(self):
@@ -65,7 +71,8 @@ class ReservationPostQiitaClient(object):
         print(f'error status: {post_res.status}')
         # エラーの場合はとりあえず落とす
         return
-      print('posted: ' + item['title'])
+      new_item = post_res.to_json()
+      print('posted: ' + new_item['title'])
 
       # 限定共有投稿を削除する
       del_res = self.client.delete_item(item['id'])
@@ -75,3 +82,16 @@ class ReservationPostQiitaClient(object):
       print('deleted: '  + item['title'])
 
       # TODO: twitterに投稿する
+
+      # slackに通知する
+      self._slack_notify(f'''Qiitaに投稿しました。
+      {new_item['title']}
+      {new_item['url']}
+      ''')
+
+
+  def _slack_notify(self, text):
+    if self.slack is None:
+      return
+    self.slack.notify(text=text)
+    print(f'slack.notify: {text}')

@@ -1,0 +1,23 @@
+{
+  "name": "qiita-reservation-post",
+  "version": "0.0.1",
+  "description": "Qiita予約投稿ツール",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kai-kou/qiita-reservation-post.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kai-kou/qiita-reservation-post/issues"
+  },
+  "homepage": "https://github.com/kai-kou/qiita-reservation-post#readme",
+  "dependencies": {
+    "serverless": "^1.32.0",
+    "serverless-python-requirements": "^4.2.5"
+  }
+}

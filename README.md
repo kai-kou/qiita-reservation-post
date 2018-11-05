@@ -7,7 +7,8 @@ Qiita予約投稿ツール
 ```sh
 > git clone https://github.com/kai-kou/qiita-reservation-post.git
 > cd qiita-reservation-post
-# Edit serverless.yaml functions.environment.QIITA_ACCESS_TOKEN
+# Edit serverless.yaml
+#   functions.environment.QIITA_ACCESS_TOKEN
 > vi serverless.yaml
 
 > npm install -g serverless

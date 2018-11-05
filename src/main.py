@@ -6,10 +6,12 @@ import os
 
 import slackweb
 
+import twitter
+
 
 class ReservationPostQiitaClient(object):
 
-  def __init__(self, access_token, slack_web_hook_url=None):
+  def __init__(self, access_token, slack_web_hook_url=None, twitter_keys=None):
     self.access_token = access_token
     self.resrvation_items = []
     self.client = QiitaClient(access_token=access_token)
@@ -19,6 +21,15 @@ class ReservationPostQiitaClient(object):
     self.slack = None
     if slack_web_hook_url is not None:
       self.slack = slackweb.Slack(url=slack_web_hook_url)
+
+    self.twitter = None
+    if twitter_keys is not None:
+      tw_auth = twitter.OAuth(
+                  consumer_key=twitter_keys['twitter_api_key'],
+                  consumer_secret=twitter_keys['api_secret_key'],
+                  token=twitter_keys['access_token'],
+                  token_secret=twitter_keys['access_token_secret'])
+      self.twitter = twitter.Twitter(auth=tw_auth)
 
 
   def _get_all_items(self):
@@ -63,8 +74,7 @@ class ReservationPostQiitaClient(object):
       postParams = {}
       for key in ['title', 'body', 'tags']:
         postParams[key] = item[key]
-      postParams['title'] = '【予約投稿】' + postParams['title']
-      postParams['private'] = True # 本利用する際にはFalseにする
+      postParams['private'] = False
       post_res = self.client.create_item(postParams)
 
       if post_res.status != 201:
@@ -78,13 +88,15 @@ class ReservationPostQiitaClient(object):
       del_res = self.client.delete_item(item['id'])
       if del_res.status != 204:
         print(f'error status: {post_res.status}')
-        return
       print('deleted: '  + item['title'])
 
-      # TODO: twitterに投稿する
+      # twitterに投稿する
+      self._twitter_statuses_update(f'''{new_item['title']} on @Qiita
+{new_item['url']}
+      ''')
 
       # slackに通知する
-      self._slack_notify(f'''Qiitaに投稿しました。
+      self._slack_notify(f'''Qiitaに投稿しました
       {new_item['title']}
       {new_item['url']}
       ''')
@@ -95,3 +107,10 @@ class ReservationPostQiitaClient(object):
       return
     self.slack.notify(text=text)
     print(f'slack.notify: {text}')
+
+
+  def _twitter_statuses_update(self, status):
+    if self.twitter is None:
+        return
+    self.twitter.statuses.update(status=status)
+    print(f'twitter.statuses.update: {status}')

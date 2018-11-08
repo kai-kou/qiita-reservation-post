@@ -55,17 +55,32 @@ class ReservationPostQiitaClient(object):
     print(f'private items: {len(private_items)}')
 
     # 投稿日時の指定コメントされている投稿に絞り込む
-    comments_items = list(filter(lambda x: x['comments_count'] > 0, private_items))
+    comments_items = list(filter(
+      lambda x: x['comments_count'] > 0 and reservation_keyword not in x['title'], private_items))
     print(f'commented items: {len(comments_items)}')
 
-    # 記事コメントに予約投稿キーワードが含まれる記事に絞り込む
+    # 記事コメントに予約投稿キーワードが含まれる記事を取得する
+    resrvation_comment_items = []
     for item in comments_items:
       comments = self.client.list_item_comments(item['id']).to_json()
       resrvation_comments = list(filter(lambda x: reservation_keyword in x['body'], comments))
       if len(resrvation_comments) > 0:
-        self.resrvation_items.append(item)
+        resrvation_comment_items.append(item)
+    print(f'resrvation comment items: {len(resrvation_comment_items)}')
 
-    print(f'resrvation items: {len(self.resrvation_items)}')
+    # タイトルに予約投稿キーワードが含まれる記事を取得する
+    resrvation_title_items = []
+    title_items = list(filter(lambda x: reservation_keyword in x['title'], private_items))
+
+    # タイトルから予約投稿キーワードを除外しておく
+    for item in title_items:
+      item['title'] = item['title'].replace(reservation_keyword, '')
+    print(f'resrvation title items: {len(title_items)}')
+
+    # コメント・タイトルそれぞれから取得した記事をまとめる
+    self.resrvation_items.extend(resrvation_comment_items)
+    self.resrvation_items.extend(title_items)
+    print(f'resrvation items: {len(title_items)}')
 
 
   def post_items(self):
